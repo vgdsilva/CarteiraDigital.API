@@ -9,6 +9,8 @@ public class PostgresSQLContext : DbContext
 
     public DbSet<User> Users { get; set; }
 
+    public DbSet<Wallet> Wallets { get; set; }
+
 
     public PostgresSQLContext(DbContextOptions<PostgresSQLContext> options) : base(options)
     {
