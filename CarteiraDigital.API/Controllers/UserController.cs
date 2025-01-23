@@ -33,29 +33,33 @@ namespace CarteiraDigital.API.Controllers
         public async Task<ActionResult<Token>> Authenticate([FromBody] Credentials credentials)
         {
             if (credentials is null)
-                return BadRequest(new { message = "credentials is required" });
+                return BadRequest(new ApiResultBuilder().SetMessage("credentials is required").SetSuccess(false).Build());
 
             if (string.IsNullOrWhiteSpace(credentials.Username))
-                return BadRequest(new { message = "Username is required" });
+                return BadRequest(new ApiResultBuilder().SetMessage("Username is required").SetSuccess(false).Build());
 
             if (string.IsNullOrWhiteSpace(credentials.Password))
-                return BadRequest(new { message = "Password is required" });
+                return BadRequest(new ApiResultBuilder().SetMessage("Password is required").SetSuccess(false).Build());
 
             var user = await _userRepository.GetByUsernameAsync(credentials.Username);
 
             if (user is null)
-                return NotFound(new { message = "User no found" });
+                return NotFound(new ApiResultBuilder().SetSuccess(false).SetMessage("User is no found").Build());
 
             if (!PasswordSecurity.VerifyPassword(credentials.Password, user.Password))
-                return BadRequest(new { message = "Invalid credentials" });
+                return BadRequest(new ApiResultBuilder().SetMessage("Invalid credentials").SetSuccess(false).Build());
 
             string accessToken = _tokenService.GenerateToken(credentials);
 
-            return Ok(new Token
-            {
-                UserId = user.Id,
-                AccessToken = accessToken,
-            });
+            return Ok(new ApiResultBuilder()
+                .SetSuccess(true)
+                .SetData(new Token
+                {
+                    UserId = user.Id,
+                    AccessToken = accessToken,
+                })
+                .Build()
+            );
         }
 
 
@@ -66,7 +70,7 @@ namespace CarteiraDigital.API.Controllers
         public async Task<ActionResult<ApiResult>> Create([FromBody] CreateUserDTO request)
         {
             if (request is null)
-                return BadRequest(new ApiResultBuilder().SetMessage("credentials is required").SetSuccess(false).Build());
+                return BadRequest(new ApiResultBuilder().SetMessage("request is required").SetSuccess(false).Build());
 
             if (string.IsNullOrWhiteSpace(request.Name))
                 return BadRequest(new ApiResultBuilder().SetMessage("Name is required").SetSuccess(false).Build());
