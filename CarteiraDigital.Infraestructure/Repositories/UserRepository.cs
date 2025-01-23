@@ -17,4 +17,27 @@ public class UserRepository
     {
         return await _context.Users.FirstOrDefaultAsync(x => x.Username == username);
     }
+
+    public async Task<User?> GetById(string id)
+    {
+        return await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+    }
+
+    public async Task<User> SaveAsync(User entity)
+    {
+        if (entity.Id == Guid.Empty.ToString())
+        {
+            entity.Id = Guid.NewGuid().ToString();
+
+            _context.Users.Add(entity);
+        }
+        else
+        {
+            _context.Users.Update(entity);
+        }
+
+        await _context.SaveChangesAsync();
+
+        return entity;
+    }
 }
