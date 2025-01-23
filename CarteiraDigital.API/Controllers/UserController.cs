@@ -1,4 +1,5 @@
-﻿using CarteiraDigital.Application.Interfaces;
+﻿using CarteiraDigital.Application.Builders;
+using CarteiraDigital.Application.Interfaces;
 using CarteiraDigital.Domain.DTOs;
 using CarteiraDigital.Domain.Entities;
 using CarteiraDigital.Domain.Models;
@@ -62,20 +63,19 @@ namespace CarteiraDigital.API.Controllers
         [HttpPost("Create")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<User>> Create([FromBody] CreateUserDTO request)
+        public async Task<ActionResult<ApiResult>> Create([FromBody] CreateUserDTO request)
         {
             if (request is null)
-                return BadRequest(new { message = "credentials is required" });
+                return BadRequest(new ApiResultBuilder().SetMessage("credentials is required").SetSuccess(false).Build());
 
             if (string.IsNullOrWhiteSpace(request.Name))
-                return BadRequest(new { message = "Name is required" });
+                return BadRequest(new ApiResultBuilder().SetMessage("Name is required").SetSuccess(false).Build());
             
             if (string.IsNullOrWhiteSpace(request.Username))
-                return BadRequest(new { message = "Username is required" });
+                return BadRequest(new ApiResultBuilder().SetMessage("Username is required").SetSuccess(false).Build());
 
             if (string.IsNullOrWhiteSpace(request.Password))
-                return BadRequest(new { message = "Password is required" });
+                return BadRequest(new ApiResultBuilder().SetMessage("Password is required").SetSuccess(false).Build());
 
             Domain.Entities.User createdUser = new User
             {
@@ -88,7 +88,25 @@ namespace CarteiraDigital.API.Controllers
 
             createdUser.Password = "";
 
-            return Ok(createdUser);
+            return Ok(new ApiResultBuilder().SetSuccess(true).SetData(createdUser).Build());
+        }
+
+        [Authorize]
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ApiResult>> GetById(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(new ApiResultBuilder().SetSuccess(false).SetMessage("id is required").Build());
+
+            Domain.Entities.User? user = await _userRepository.GetByIdAsync(id);
+
+            if (user is null)
+                return NotFound(new ApiResultBuilder().SetSuccess(false).SetMessage("User is no found").Build());
+
+            return Ok(new ApiResultBuilder().SetSuccess(true).SetData(user).Build());
         }
     }
 }
