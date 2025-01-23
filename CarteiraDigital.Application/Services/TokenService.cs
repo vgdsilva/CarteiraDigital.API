@@ -27,16 +27,16 @@ public class TokenService : ITokenService
         
         var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
         {
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature),
             Subject = new ClaimsIdentity(
-                    new GenericIdentity(credentials.Username, "Username"),
-                    new[] {
-                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                        new Claim(JwtRegisteredClaimNames.UniqueName, credentials.Username),
-                        }
+                    new GenericIdentity(credentials.Username, "Username")
+                    //new[] {
+                    //    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    //    new Claim(JwtRegisteredClaimNames.UniqueName, credentials.Username),
+                    //    }
                     ),
             NotBefore = DateTime.UtcNow,
-            Expires = DateTime.UtcNow.AddHours(2),
+            Expires = DateTime.UtcNow.AddMinutes(5),
             Issuer = "https://localhost:7263/",
             Audience = "https://localhost:7263/",
         });

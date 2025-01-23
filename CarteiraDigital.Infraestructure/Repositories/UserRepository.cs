@@ -23,10 +23,13 @@ public class UserRepository
         return await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
     }
 
-    public async Task<User> SaveAsync(User entity)
+    public async Task<User> SaveChangesAsync(User entity)
     {
         if (entity.Id == Guid.Empty.ToString())
         {
+            if (await GetByUsernameAsync(entity.Username) != null)
+                throw new Exception("Ja existe um usuario com este username.");
+            
             entity.Id = Guid.NewGuid().ToString();
 
             _context.Users.Add(entity);

@@ -10,7 +10,7 @@ public static class DependencyInjection
     public static IServiceCollection AddDatabaseContext(this IServiceCollection services)
     {
         services.AddDbContext<PostgresSQLContext>(options => 
-            options.UseNpgsql("Server=localhost;Port=5435;Database=CarteiraDigital_database;User ID=postgres;Password=123;"));
+            options.UseNpgsql("Server=localhost;Port=5435;Database=CarteiraDigital_database;User ID=postgres;Password=1234;"));
 
 
         // Construir o provedor de serviços para criar uma instância do DbContext
@@ -40,6 +40,7 @@ public static class DependencyInjection
     public static IServiceCollection AddRepositories(this IServiceCollection services)
     {
         services.AddScoped<UserRepository>();
+        services.AddScoped<TransactionRepository>();
 
         return services;
     }

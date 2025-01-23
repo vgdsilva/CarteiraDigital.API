@@ -9,6 +9,8 @@ public class PostgresSQLContext : DbContext
 
     public DbSet<User> Users { get; set; }
 
+    public DbSet<Transaction> Transactions { get; set; }
+
     public DbSet<Wallet> Wallets { get; set; }
 
 
@@ -25,6 +27,9 @@ public class PostgresSQLContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<User>();
+        modelBuilder.Entity<Transaction>();
 
         _ = modelBuilder.Entity<User>().HasData([
             new User

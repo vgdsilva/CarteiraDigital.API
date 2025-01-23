@@ -1,19 +1,15 @@
 ﻿using CarteiraDigital.Application.Builders;
 using CarteiraDigital.Application.Interfaces;
-using CarteiraDigital.Domain.DTOs;
-using CarteiraDigital.Domain.Entities;
 using CarteiraDigital.Domain.Models;
-using CarteiraDigital.Domain.Utils;
 using CarteiraDigital.Infraestructure.Repositories;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 
 namespace CarteiraDigital.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
+    [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
         private readonly ITokenService _tokenService;
@@ -25,87 +21,17 @@ namespace CarteiraDigital.API.Controllers
             _tokenService = tokenService;
         }
 
-        [AllowAnonymous]
-        [HttpPost("Authenticate")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Token>> Authenticate([FromBody] Credentials credentials)
-        {
-            if (credentials is null)
-                return BadRequest(new ApiResultBuilder().SetMessage("credentials is required").SetSuccess(false).Build());
-
-            if (string.IsNullOrWhiteSpace(credentials.Username))
-                return BadRequest(new ApiResultBuilder().SetMessage("Username is required").SetSuccess(false).Build());
-
-            if (string.IsNullOrWhiteSpace(credentials.Password))
-                return BadRequest(new ApiResultBuilder().SetMessage("Password is required").SetSuccess(false).Build());
-
-            var user = await _userRepository.GetByUsernameAsync(credentials.Username);
-
-            if (user is null)
-                return NotFound(new ApiResultBuilder().SetSuccess(false).SetMessage("User is no found").Build());
-
-            if (!PasswordSecurity.VerifyPassword(credentials.Password, user.Password))
-                return BadRequest(new ApiResultBuilder().SetMessage("Invalid credentials").SetSuccess(false).Build());
-
-            string accessToken = _tokenService.GenerateToken(credentials);
-
-            return Ok(new ApiResultBuilder()
-                .SetSuccess(true)
-                .SetData(new Token
-                {
-                    UserId = user.Id,
-                    AccessToken = accessToken,
-                })
-                .Build()
-            );
-        }
-
-
-        [AllowAnonymous]
-        [HttpPost("Create")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<ApiResult>> Create([FromBody] CreateUserDTO request)
-        {
-            if (request is null)
-                return BadRequest(new ApiResultBuilder().SetMessage("request is required").SetSuccess(false).Build());
-
-            if (string.IsNullOrWhiteSpace(request.Name))
-                return BadRequest(new ApiResultBuilder().SetMessage("Name is required").SetSuccess(false).Build());
-            
-            if (string.IsNullOrWhiteSpace(request.Username))
-                return BadRequest(new ApiResultBuilder().SetMessage("Username is required").SetSuccess(false).Build());
-
-            if (string.IsNullOrWhiteSpace(request.Password))
-                return BadRequest(new ApiResultBuilder().SetMessage("Password is required").SetSuccess(false).Build());
-
-            Domain.Entities.User createdUser = new User
-            {
-                Name = request.Name,
-                Username = request.Username,
-                Password = PasswordSecurity.HashPassword(request.Password),
-            };
-
-            await _userRepository.SaveAsync(createdUser);
-
-            createdUser.Password = "";
-
-            return Ok(new ApiResultBuilder().SetSuccess(true).SetData(createdUser).Build());
-        }
-
         [Authorize]
-        [HttpGet("{id}")]
+        [HttpGet("{userId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ApiResult>> GetById(string id)
+        public async Task<ActionResult<ApiResult>> GetById(string userId)
         {
-            if (string.IsNullOrWhiteSpace(id))
-                return BadRequest(new ApiResultBuilder().SetSuccess(false).SetMessage("id is required").Build());
+            if (string.IsNullOrWhiteSpace(userId))
+                return BadRequest(new ApiResultBuilder().SetSuccess(false).SetMessage("userId is required").Build());
 
-            Domain.Entities.User? user = await _userRepository.GetByIdAsync(id);
+            Domain.Entities.User? user = await _userRepository.GetByIdAsync(userId);
 
             if (user is null)
                 return NotFound(new ApiResultBuilder().SetSuccess(false).SetMessage("User is no found").Build());
