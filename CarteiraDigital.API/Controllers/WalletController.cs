@@ -25,7 +25,7 @@ namespace CarteiraDigital.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<Wallet>>> GetUserWallets(string userId)
         {
-            var wallets = await _walletRepository.GetByUserIdAsync(userId);
+            var wallets = await _walletRepository.GetByIdAsync(userId);
             return Ok(wallets);
         }
 
