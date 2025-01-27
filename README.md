@@ -11,3 +11,9 @@ Uma API desenvolvida em C# utilizando o padrão REST com uma conexão com o banc
 
 # Execute os Seguintes comandos
     - dotnet run
+
+# Para realização dos testes
+    - Foi criado dois usuario com duas caterias ja contendo valores. Para realizar o teste acesse o swagger e para realizar a Autenticação é so utilizar um dos logins abaixo:
+        - user01 e 123
+        - user02 e 123
+        
