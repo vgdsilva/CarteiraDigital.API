@@ -66,6 +66,9 @@ namespace CarteiraDigital.API.Controllers
                 if (string.IsNullOrEmpty(request.ReceiverWalletId))
                     return BadRequest(new ApiResultBuilder().SetMessage("receiver id is required").SetSuccess(false).Build());
 
+                if (request.SenderWalletId == request.ReceiverWalletId)
+                    return BadRequest(new ApiResultBuilder().SetMessage("receiver id and sender id is the same").SetSuccess(false).Build());
+
                 var senderWalletEntity = await _walletRepository.GetByIdAsync(request.SenderWalletId);
                 var receiverWalletEntity = await _walletRepository.GetByIdAsync(request.ReceiverWalletId);
 
